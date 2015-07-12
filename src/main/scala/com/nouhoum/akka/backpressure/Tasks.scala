@@ -9,10 +9,6 @@ case class Tasks(values: Vector[Task]) {
   def next: Option[(Task, Tasks)] =
     if(isDone) None
     else Option((values.head, copy(values = values.drop(1))))
-
-  def next2: (Option[Task], Tasks) =
-    if(isDone) (None, Tasks.empty)
-    else (values.headOption, copy(values = values.drop(1)))
 }
 
 object Tasks {
