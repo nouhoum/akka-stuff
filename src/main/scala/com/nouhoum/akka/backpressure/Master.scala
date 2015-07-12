@@ -8,6 +8,7 @@ class Master extends Actor with ActorLogging {
   var tasks = Tasks.empty
   val step = 10
   val numberOfWorkers = 2
+  var remainingWorkingWorkers = numberOfWorkers
 
   def waiting: Receive = {
     case message @ FetchData(from, to) =>
@@ -22,8 +23,9 @@ class Master extends Actor with ActorLogging {
   def working: Receive = {
     case GetTask =>
       tasks.next.fold({
-        log.info("No more tasks... Waiting then ;-)")
-        context.become(waiting)
+        log.info("No more tasks... ;-)")
+        remainingWorkingWorkers = remainingWorkingWorkers - 1
+        shutdownIfAllTasksCompleted()
       }) {
         case (task, newTasks) =>
           log.info(s"sending task $task to a worker.")
@@ -33,12 +35,17 @@ class Master extends Actor with ActorLogging {
   }
 
   def createAndStartWorkers(): Unit = {
-    println(s"Creating workers....")
+    log.info(s"Creating workers....")
     (0 until numberOfWorkers) foreach(_ => context.actorOf(Props(new Worker(self))) ! StartWorking)
   }
+
+  def allTasksCompleted = remainingWorkingWorkers == 0
+
+  def shutdownIfAllTasksCompleted() =
+    if(allTasksCompleted) context.system.shutdown()
 }
 
 object Master {
-  case class FetchData(from: Int, to: Int)
   case object GetTask
+  case class FetchData(from: Int, to: Int)
 }
