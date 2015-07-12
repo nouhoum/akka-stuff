@@ -9,6 +9,4 @@ object Launcher extends App {
   val master = system.actorOf(Props[Master])
 
   master ! FetchData(from = 0, to = 1000)
-  println(s"Message sent...")
-  //system.shutdown()
 }
