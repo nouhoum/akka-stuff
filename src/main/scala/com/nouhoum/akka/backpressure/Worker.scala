@@ -23,7 +23,6 @@ class Worker(master: ActorRef) extends Actor with ActorLogging {
     Future.successful(randoms(3))
   }
 
-
   def randoms(n:Int): List[String] =
    n match {
      case 0 => Nil

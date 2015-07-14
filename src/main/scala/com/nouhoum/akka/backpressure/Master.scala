@@ -14,8 +14,8 @@ class Master extends Actor with ActorLogging {
     case message @ FetchData(from, to) =>
       log.info(s"Received a data fetching request $message")
       tasks = Tasks.from(from, to, step)
-      createAndStartWorkers()
       context.become(working)
+      createAndStartWorkers()
   }
 
   def receive = waiting
